@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Bubbles App</title>
+	<style>
+		canvas {
+           display: block;
+           margin-left: auto;
+           margin-right: auto;
+           margin: auto;
+           margin-top: 1vh;
+           
+           border: 3px solid black; /* Add border around canvas */
+		}
+	</style>
+</head>
+<body>
+    <h1 style="text-align: center; font-family: cursive;"  ><b>Bubbles App</b></h1>
+    <canvas id="myCanvas"></canvas><br>
+    <button id="resetBtn" style="float: right; margin-right: 330px; font-family: cursive;" ><b>Reset</b></button> 
+ 
+
+	  <script>
+      var canvas = document.getElementById("myCanvas");
+      canvas.width = 600;//code to set the width of canvas
+      canvas.height = 350;//code to set the height of canvas
+
+      var ctx = canvas.getContext("2d");
+      
+      //set constant colors
+      const primaryColor = ["#FFFF00","#0000FF","#FF0000","#00FF00"]
+
+
+      // Draw the four circles
+      const circleData =[
+                          { name: "Circle 1",x: 50, y: 50, radius: 30, color: "#FFFF00" }, 
+                          { name: "Circle 2",x: 50, y: 130, radius: 30, color: "#0000FF" },  
+                          { name: "Circle 3",x: 50, y: 210, radius: 30, color: "#FF0000" },  
+                          { name: "Circle 4",x: 50, y: 300, radius: 30, color: "#00FF00" }
+                        ];
+      const arrowData = [
+                          { name: "Arrow 1",x1: 500, y1: 50, x2: 550, y2: 50, color: "black",moving:false },
+                          { name: "Arrow 2",x1: 500, y1: 130, x2: 550, y2: 130, color: "black",moving:false },
+                          { name: "Arrow 3",x1: 500, y1: 210, x2: 550, y2: 210, color: "black",moving:false },
+                          { name: "Arrow 4",x1: 500, y1: 290, x2: 550, y2: 290, color: "black",moving:false },
+                        ];
+
+      
+
+      function drawCircle(x, y, radius, color)
+        {
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
+          ctx.fillStyle = color;
+          ctx.fill();
+          // Add the border
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "black";
+          ctx.stroke();
+        } 
+
+        circleData.forEach(circle => {
+        drawCircle(circle.x, circle.y, circle.radius, circle.color);
+        });
+    
+        //Draw arrowLine
+        function drawArrow(arrow) {
+        // Draw the line
+        ctx.beginPath();
+        ctx.moveTo(arrow.x1, arrow.y1);
+        ctx.lineTo(arrow.x2, arrow.y2);
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = arrow.color;
+        ctx.stroke();
+
+        // Draw the arrowhead
+        ctx.beginPath();
+        ctx.moveTo(arrow.x1 - 10, arrow.y1);
+        ctx.lineTo(arrow.x1 + 15, arrow.y1 + 15);
+        ctx.lineTo(arrow.x1 + 15, arrow.y1 - 15);
+        ctx.closePath(); // close the path to complete the triangle
+        ctx.fillStyle = arrow.color;
+        ctx.fill();
+      }
+
+      arrowData.forEach((arrow) => {
+        drawArrow(arrow);
+      });
+
+
+      // Define the active arrow
+      let activeArrowIndex = 0;
+
+      // Define the step size for arrow movement
+      const stepSize = 2;
+
+      function animateArrows()
+      {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        function drawCircle(x, y, radius, color)
+        {
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
+          ctx.fillStyle = color;
+          ctx.fill();
+          // Add the border
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "black";
+          ctx.stroke();
+        } 
+
+        circleData.forEach(circle => 
+        {
+          drawCircle(circle.x, circle.y, circle.radius, circle.color);
+        });
+    
+        //Draw arrowLine
+        function drawArrow(arrow) 
+        {
+          // Draw the line
+          ctx.beginPath();
+          ctx.moveTo(arrow.x1, arrow.y1);
+          ctx.lineTo(arrow.x2, arrow.y2);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = arrow.color;
+          ctx.stroke();
+
+          // Draw the arrowhead
+          ctx.beginPath();
+          ctx.moveTo(arrow.x1 - 10, arrow.y1);
+          ctx.lineTo(arrow.x1 + 15, arrow.y1 + 15);
+          ctx.lineTo(arrow.x1 + 15, arrow.y1 - 15);
+          ctx.closePath(); // close the path to complete the triangle
+          ctx.fillStyle = arrow.color;
+          ctx.fill();
+        }
+
+        arrowData.forEach((arrow) => 
+        {
+          drawArrow(arrow);
+        });
+      
+        // Handle canvas click event
+        canvas.addEventListener("click", (event) => 
+        {
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+        
+          // Check if a point (x, y) is inside a circle
+          function pointInCircle(x, y, circle) 
+          {
+            const dx = x - circle.x;
+            const dy = y - circle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance <= circle.radius;
+          }                                                     
+
+          // Check if clicked on the center of a circle
+          circleData.forEach((circle,index) => 
+          {
+            if (pointInCircle(x, y, circle,index)) 
+            {
+              // Update the arrow position
+              const arrow = arrowData[index];
+              arrow.x1 =circle.x - (-40);
+              arrow.y1 = circle.y;
+              arrow.x2 = circle.x + 100;
+              arrow.y2 = circle.y;
+              arrow.moving = true;
+              //change the circle color when arrow touch the width
+              circle.color = "gray"
+            }
+          });
+        });
+      
+        // Request animation frame for next frame
+        requestAnimationFrame(animateArrows);
+      }
+    
+      // Start the animation
+      animateArrows();
+    
+      // Handle a click on the reset button
+      const resetBtn = document.getElementById("resetBtn");
+      resetBtn.addEventListener("click", () => 
+      {
+        // Reset arrow positions and movement
+        arrowData.forEach((arrow) => {
+        arrow.x1 = 500;
+        arrow.x2 = 550;
+      });
+      activeArrow = null;
+
+      // Reset circle colors
+      circleData.forEach((circle, index) => {
+        circle.color = primaryColor[index];
+      });
+
+      // Call the animateArrows function to update the canvas
+      animateArrows();
+      });
+		
+    </script>
+  </body>
+</html>
